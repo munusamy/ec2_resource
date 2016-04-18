@@ -11,6 +11,8 @@ Aws.config.update({
     credentials: Aws::Credentials.new(creds['AccessKeyId'], creds['SecretAccessKey'])
     })
 
+ec2 = Aws::EC2::Client.new()
+
 resp = ec2.describe_instances()
 @instance_stopped = []
 
@@ -31,17 +33,19 @@ resp.reservations.each do |f|
 end
 
 vpc_ids = (@instance_running.uniq {|e| e[:vpc_id]}).map {|k| k[:vpc_id]}
-
+subnet_ids = (@instance_running.uniq {|e| e[:subnet_id]}).map {|k| k[:subnet_id]}
+puts subnet_ids
 @vpc_hash = {}
 vpc_ids.each do |file|
   @subnet_list = []
   @instances_list = []
   @instance_running.each do |ins|
     if file == ins[:vpc_id]
+      @vpc_item = []
       @vpc_hash[:vpc_id] = ins[:vpc_id]
-	unless @subnet_list.include?(ins[:subnet_id])
-           @subnet_list << ins[:subnet_id]
-	end	
+      unless @subnet_list.include?(ins[:subnet_id])
+        @subnet_list << ins[:subnet_id]
+      end	
 	@instances_list << ins[:id]
     else
       puts "vpc is not matching"
@@ -49,8 +53,8 @@ vpc_ids.each do |file|
       @vpc_hash[:subnet_ids] = @subnet_list
       @vpc_hash[:instances] = @instances_list
   end
+      puts @vpc_hash
 end
+
+
     
-  
-
-
