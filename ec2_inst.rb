@@ -1,4 +1,5 @@
 require 'aws-sdk'
+require 'json'
 require 'pry'
 
 
@@ -11,6 +12,9 @@ Aws.config.update({
     })
 
 ec2 = Aws::EC2::Client.new()
+@work = Hash.new do |hash, missing_key|
+  hash[missing_key] = 0
+end
 
 resp = ec2.describe_instances()
 @instance_stopped = []
@@ -27,35 +31,18 @@ end
 =end
 @instance_running = []
 resp.reservations.each do |f|
- if f.instances.class == Array
+# if f.instances.class == Array
    f.instances.each do |id|
-#binding.pry
      if id.state.name == "running" 
-       @instance_running << id.instance_id
+       runners = {}
+    	runners[:id]= id.instance_id
+	runners[:vpc_id] = id.vpc_id 
+	runners[:subnet_id] = id.subnet_id
+        puts runners
+        @instance_running << runners
      else
        @instance_stopped << id.instance_id
      end
    end
- else
-   if f.state.name == "running"
-     @instance_running << f.instances[0].instance_id
-   else
-     @instance_stopped << f.instances[0].instance_id
-   end
- end  
 end
 
-
-puts @instance_running
-#puts "Stopped one"
-#puts @instance_stopped
-
-
-vpc = ec2.describe_instances(instance_ids: @instance_running)
-puts "####################################"
-@instance_running.each do |f|
- vpc_inst_id = vpc.reservations[0].instances[0].vpc_id
- vpc_hash = {}
- vpc_hash[f] = vpc_inst_id 
- puts vpc_hash
-end
