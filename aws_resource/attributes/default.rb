@@ -1,1 +1,1 @@
-default['aws']['sdk'] = '2.2.4'
+default['aws']['sdk'] = '2.2.34'

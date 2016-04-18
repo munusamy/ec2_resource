@@ -46,7 +46,7 @@ module Vpc
         @instances_list = []
         @instance_running.each do |ins|
           if file == ins[:vpc_id]
-            @vpc_hash['id'] = 'vpc_resp'
+            @vpc_hash['id'] = "vpc_resp_#{file}"
             @vpc_hash[:vpc_id] = ins[:vpc_id]
        	unless @subnet_list.include?(ins[:subnet_id])
           @subnet_list << ins[:subnet_id]
