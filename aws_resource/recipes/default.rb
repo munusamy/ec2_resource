@@ -5,7 +5,6 @@
 # Copyright 2016, YOUR_COMPANY_NAME
 #
 
-::Chef::Recipe.send(:include, Vpc::Helpers)
 
 chef_gem 'aws-sdk' do 
   version node['aws']['sdk']
@@ -19,5 +18,8 @@ cookbook_file '/etc/chef/encrypted_data_bag_secret' do
   mode 0644
   action :create
 end
+::Chef::Recipe.send(:include, Vpc::Helpers)
 
-aws_collection
+#aws_collection
+vpc_aws
+#aws_sg
