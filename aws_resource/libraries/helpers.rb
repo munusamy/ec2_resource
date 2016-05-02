@@ -13,7 +13,7 @@ module Vpc
         })
       
       @ec2 = Aws::EC2::Client.new()
-      @ec2_vpc = @ec2.describe_instances()
+      @ec2_detail = @ec2.describe_instances({filters: [ { name: 'instance-state-name', values: ['running'] }] })
     end
     
     def databg(item, bag_id)
@@ -35,7 +35,7 @@ module Vpc
 
     def vpc_aws
       aws_control 
-      @ec2_import = @ec2_vpc.reservations
+      @ec2_import = @ec2_detail.reservations
       @vpc_list = []
       @vpc_h = {}
       @ec2_import.map do |vpc|
@@ -54,6 +54,34 @@ module Vpc
       databg(@vpc_h, bag_id_name)
     end      
 
+    def sub_aws
+      aws_control
+      @ec2_sub = @ec2_detail.reservations
+      @ec2_vpc = @ec2_sub.each { |v| v.instances.each { |s| s.vpc_id}}
+      @sub_l = []
+      @sub_list = {}
+      @ec2_sub.each do |sub|
+        sub.instances.each do |s|
+          @sub_list[:subnet_id] = s.subnet_id
+          @sub_list[:vpc_id] = s.vpc_id
+          @sub_l << @sub_list
+        end
+      end 
+      puts @sub_l.uniq
+      bag_id_name = 'subnet_id'
+      databg(@sub_list, bag_id_name)
+       
+    end
+
+    def ec2_inst
+      aws_control
+      @runn = []
+      @ec2_detail.reservations.each do |ins|
+        ins.instances.each do |i|
+          @runn << i.instance_id
+        end
+      end
+    end
   end
 end  
 
