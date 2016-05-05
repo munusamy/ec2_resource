@@ -37,7 +37,6 @@ module Vpc
       aws_control 
       @ec2_import = @ec2_detail.reservations
       @vpc_list = []
-      @vpc_h = {}
       @ec2_import.map do |vpc|
         vpc.instances.each do |id|
           v = id.vpc_id
@@ -48,7 +47,6 @@ module Vpc
         @vpc = Hash.new
         @vpc[:id] = @vpc_list
       end
-      @vpc_h[:reference] = @vpc
     end
   
     def vpc_add
@@ -92,6 +90,43 @@ module Vpc
         end
       end
     end
+
+    def ec2_collect
+      ec2_inst
+      ec2_hash = {}
+      ec2_hash[:reference] = @runn
+      bag_id = 'instance_count'
+      databg(ec2_hash, bag_id)
+    end
+ 
+    def sg_check
+      aws_control
+      ec2_inst     
+      @sg_count = Array.new
+      @runn.each do |instance| 
+        @sg = Aws::EC2::Instance.new(instance)
+        @sg.security_groups.each do |g|
+          @sg_count << g.group_id
+        end
+      end
+      @sg_total = @sg_count.uniq
+    end
+ 
+    def sg_databag
+      sg_check
+      @sg_list = {}
+      @sg_total.each do |sg|
+        @sg_details = Aws::EC2::SecurityGroup.new(sg)
+        @sg_port = []
+        @sg_details.ip_permissions.each do |p|
+          @sg_port << p.from_port
+        end
+      @sg_list[sg] = @sg_port 
+      end  
+      bag_id = 'security_group_lists'
+      databg(@sg_list, bag_id)
+    end
+
   end
 end  
 
