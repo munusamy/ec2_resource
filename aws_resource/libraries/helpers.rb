@@ -77,6 +77,8 @@ module Vpc
 
     def sub_add
       sub_aws
+      @sub_all = {}
+      @sub_all['subnet'] = @sub
       bag_id_name = 'subnet_id'
       databg(@sub, bag_id_name)
     end
@@ -115,13 +117,18 @@ module Vpc
     def sg_databag
       sg_check
       @sg_list = {}
+      @sg_col = {}
       @sg_total.each do |sg|
         @sg_details = Aws::EC2::SecurityGroup.new(sg)
         @sg_port = []
         @sg_details.ip_permissions.each do |p|
+          p.ip_ranges.each do |c|
+            @sg_col['cidr'] = c.cidr_ip
+          end
           @sg_port << p.from_port
         end
       @sg_list[sg] = @sg_port 
+      @sg_list.merge(@sg_col)
       end  
       bag_id = 'security_group_lists'
       databg(@sg_list, bag_id)
