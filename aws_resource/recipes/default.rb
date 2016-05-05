@@ -20,6 +20,7 @@ cookbook_file '/etc/chef/encrypted_data_bag_secret' do
 end
 ::Chef::Recipe.send(:include, Vpc::Helpers)
 
-#aws_collection
-vpc_aws
-#aws_sg
+#vpc_aws
+#sub_aws
+#sub_add
+#ec2_inst

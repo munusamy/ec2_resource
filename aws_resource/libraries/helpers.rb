@@ -49,7 +49,12 @@ module Vpc
         @vpc[:id] = @vpc_list
       end
       @vpc_h[:reference] = @vpc
-
+    end
+  
+    def vpc_add
+      vpc_aws
+      @vpc_h = {}
+      @vpc_h[:reference] = @vpc
       bag_id_name = 'vpc_id'
       databg(@vpc_h, bag_id_name)
     end      
@@ -59,18 +64,23 @@ module Vpc
       @ec2_sub = @ec2_detail.reservations
       @ec2_vpc = @ec2_sub.each { |v| v.instances.each { |s| s.vpc_id}}
       @sub_l = []
-      @sub_list = {}
       @ec2_sub.each do |sub|
+        @sub_list = {}
         sub.instances.each do |s|
           @sub_list[:subnet_id] = s.subnet_id
           @sub_list[:vpc_id] = s.vpc_id
-          @sub_l << @sub_list
+          unless @sub_l.include?(s.subnet_id)
+            @sub_l << @sub_list
+          end
         end
       end 
-      puts @sub_l.uniq
+      @sub = @sub_l.uniq
+    end
+
+    def sub_add
+      sub_aws
       bag_id_name = 'subnet_id'
-      databg(@sub_list, bag_id_name)
-       
+      databg(@sub, bag_id_name)
     end
 
     def ec2_inst
